@@ -3,21 +3,18 @@
 #include "list.h"
 
 int main () {
-  Node arr[3];
   int i = 0;
   int j = 4;
   int k = 5;
-  arr[0].item = &j;
-  arr[2].item = &k;
-  List testList;
-  testList.head = &arr[0];
-  testList.head->next = &arr[2];
-  testList.head->next->next = NULL;
-  Node *curr = testList.head;
+  List *testList = ListCreate();
+  printf("The lenght of this list is: %d\n", ListCount(testList));
+  ListAdd(testList, &j);
+  printf("added value");
+  Node* curr = testList->head;
   while (curr != NULL) {
-    printf("%d\n", *(int *)curr->item);
+    printf("Value is: %d\n", *(int *)curr->item);
     curr = curr->next;
   }
   return 0;
-}
 
+}

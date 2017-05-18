@@ -2,36 +2,40 @@
 
 typedef struct list {
   Node *head;
-  void *current;
+  Node *tail;
+  Node *current;
+  int count;
 } List;
 
 
 List *ListCreate();
 
-int ListCountlist(List list);
+int ListCount(List *list);
 
-void *ListFirst(List list);
+void *ListFirst(List *list);
 
-void *ListLast(List list);
+void *ListLast(List *list);
 
-void *ListNext(List list);
+void *ListNext(List *list);
 
-void *ListPrev(List list);
+void *ListPrev(List *list);
 
-void *ListCurr(List list);
+void *ListCurr(List *list);
 
-int ListAdd(List list, void *item);
+int ListAdd(List *list, void *item);
 
-int ListInsert(List list, void *item);
+int ListInsert(List *list, void *item);
 
-int ListAppend(List list,void *item);
+int ListAppend(List *list,void *item);
 
-int ListPrepend(List list, void *item);
+int ListPrepend(List *list, void *item);
 
-void *ListRemove(List list);
+void *ListRemove(List *list);
 
-void ListConcat(List list1, List list2);
+void ListConcat(List *list1, List *list2);
 
-void *ListTrim(List list);
+void ListFree(List *list, int itemFree);
+
+void *ListTrim(List *list);
 
 
