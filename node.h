@@ -6,4 +6,3 @@ typedef struct node {
   struct node *prev;
 } Node;
 #endif
-

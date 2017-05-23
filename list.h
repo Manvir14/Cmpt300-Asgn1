@@ -8,6 +8,8 @@ typedef struct list {
 } List;
 
 
+Node *ItemCreate(void *item);
+
 List *ListCreate();
 
 int ListCount(List *list);
@@ -32,10 +34,10 @@ int ListPrepend(List *list, void *item);
 
 void *ListRemove(List *list);
 
-void ListConcat(List *list1, List *list2);
+void ListConcat(List *list1, List **list2);
 
 void ListFree(List *list, int itemFree);
 
 void *ListTrim(List *list);
 
-
+void ListPrint(List *list);
