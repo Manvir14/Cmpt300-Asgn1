@@ -233,9 +233,25 @@ void ListConcat (List *list1, List **list2) {
     list1->count += (*list2)->count;
     *list2 = NULL;
   }
-
 }
 
+// Needs to add node back to pool
 void *ListTrim(List *list) {
-
+  if (list->count == 0) {
+    return NULL;
+  }
+  if (list->count == 1) {
+    list->head = NULL;
+    list->tail = NULL;
+    list->current = NULL;
+    list->count--;
+    return list->current;
+  }
+  else {
+    list->tail = list->tail->prev;
+    list->current = list->tail;
+    list->current->next = NULL;
+    list->count--;
+    return list->current;
+  }
 }
