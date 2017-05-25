@@ -1,19 +1,21 @@
 #include "list.h"
 #include <stddef.h>
 
-#define NODEMAX 100
+#define NODEMAX 4
 #define HEADMAX 10
 
-Node nodePool[NODEMAX];
-List listHeads[HEADMAX];
-int nodeCounter = 0;
-int headCounter = 0;
-
+Node nodes[NODEMAX];
+List heads[HEADMAX];
+Node *nodePool[NODEMAX];
+List *headPool[HEADMAX];
+int loaded = 0;
+int nodeCurrent = 0;
+int headCurrent = 0;
 
 
 Node *ItemCreate(void *item) {
-  if (nodeCounter < NODEMAX) {
-    Node *node = &nodePool[nodeCounter++];
+  if (nodeCurrent < NODEMAX) {
+    Node *node = nodePool[nodeCurrent++];
     node->item = item;
     node->next = NULL;
     node->prev = NULL;
@@ -24,8 +26,17 @@ Node *ItemCreate(void *item) {
 
 //QA
 List *ListCreate() {
-  if (headCounter < HEADMAX){
-    List* list = &listHeads[headCounter++];
+  int i = 0;
+  if (!loaded) {
+    for (i=0; i<HEADMAX; i++) {
+      headPool[i] = &heads[i];
+    }
+    for (i=0; i<NODEMAX; i++) {
+      nodePool[i] = &nodes[i];
+    }
+  }
+  if (headCurrent < HEADMAX){
+    List* list = headPool[headCurrent++];
     list->count = 0;
     list->head = NULL;
     list->current = NULL;
@@ -197,6 +208,7 @@ void *ListRemove(List *list) {
   if (!list || list->count == 0) {
     return NULL;
   }
+  nodePool[--nodeCurrent] = list->current;
   if (list->count == 1) {
     list->head = NULL;
     list->tail = NULL;
