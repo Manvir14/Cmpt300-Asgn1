@@ -10,6 +10,7 @@ int nodeCounter = 0;
 int headCounter = 0;
 
 
+
 Node *ItemCreate(void *item) {
   if (nodeCounter < NODEMAX) {
     Node *node = &nodePool[nodeCounter++];
@@ -253,5 +254,15 @@ void *ListTrim(List *list) {
     list->current->next = NULL;
     list->count--;
     return list->current;
+  }
+}
+
+void *ListSearch(List *list, int (*comparator)(void *item, void *comparisonArg), void *comparisonArg) {
+  Node *curr = list->current;
+  while (curr) {
+    if ( (*comparator)(curr, comparisonArg )) {
+      list->current = curr;
+      return list->current;
+    }
   }
 }

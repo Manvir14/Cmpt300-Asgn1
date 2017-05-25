@@ -41,3 +41,5 @@ void ListFree(List *list, int itemFree);
 void *ListTrim(List *list);
 
 void ListPrint(List *list);
+
+void *ListSearch(List *list, int (*comparator)(void *item, void *comparisonArg), void *comparisonArg);
