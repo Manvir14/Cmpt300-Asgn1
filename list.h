@@ -6,6 +6,8 @@ typedef struct list {
   Node *current;
   struct list *next;
   int count;
+  int beyond;
+  int before;
 } List;
 
 

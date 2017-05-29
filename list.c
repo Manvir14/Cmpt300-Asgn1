@@ -2,7 +2,7 @@
 #include <stddef.h>
 #include <stdio.h>
 
-#define NODEMAX 7
+#define NODEMAX 100
 #define HEADMAX 10
 
 Node nodes[NODEMAX];
@@ -45,6 +45,8 @@ List *ListCreate() {
     list->count = 0;
     list->head = NULL;
     list->current = NULL;
+    list->beyond = 0;
+    list->before = 0;
     return list;
   }
   return NULL;
@@ -59,7 +61,7 @@ int ListCount(List *list) {
 void *ListFirst(List *list) {
   if (list->count > 0) {
     list->current = list->head;
-    return list->head;
+    return list->head->item;
   }
   return NULL;
 }
@@ -68,27 +70,42 @@ void *ListFirst(List *list) {
 void *ListLast(List *list) {
   if(list->count > 0) {
     list->current = list->tail;
-    return list->tail;
+    if (list->current) {
+      return list->tail->item;
+    }
   }
   return NULL;
 }
 
 //QA
 void *ListNext(List *list) {
-  if(list->current->next != NULL) {
-    list->current = list->current->next;
-    return list->current->item;
+  if (list->before) {
+    list->current = list->head;
+    list->before = 0;
   }
-  return NULL;
+  else if(list->current) {
+    list->current = list->current->next;
+  }
+  if (list->current == NULL) {
+    list->beyond = 1;
+  }
+  return list->current ? list->current->item : NULL;
+
 }
 
 //QA
 void *ListPrev(List *list){
-  if(list->current->prev != NULL) {
-    list->current = list->current->prev;
-    return list->current->item;
+  if (list->beyond) {
+    list->current = list->tail;
+    list->beyond = 0;
   }
-  return NULL;
+  else if(list->current) {
+    list->current = list->current->prev;
+  }
+  if (list->current == NULL) {
+    list->before = 1;
+  }
+  return list->current ? list->current->item : NULL;
 }
 
 //QA
@@ -109,6 +126,24 @@ int ListAdd(List *list, void *item) {
     list->head = node;
     list->tail = node;
     list->current = node;
+    list->count++;
+    return 0;
+  }
+
+  if (list->before) {
+    list->head->prev = node;
+    node->next = list->head;
+    list->head = list->current = node;
+    list->before = 0;
+    list->count++;
+    return 0;
+  }
+
+  if (list->beyond) {
+    list->tail->next = node;
+    node->prev = list->tail;
+    list->tail = list->current = node;
+    list->beyond = 0;
     list->count++;
     return 0;
   }
@@ -139,6 +174,24 @@ int ListInsert(List *list, void *item) {
     list->head = node;
     list->tail = node;
     list->current = node;
+    list->count++;
+    return 0;
+  }
+
+  if (list->before) {
+    list->head->prev = node;
+    node->next = list->head;
+    list->head = list->current = node;
+    list->before = 0;
+    list->count++;
+    return 0;
+  }
+
+  if (list->beyond) {
+    list->tail->next = node;
+    node->prev = list->tail;
+    list->tail = list->current = node;
+    list->beyond = 0;
     list->count++;
     return 0;
   }
@@ -214,6 +267,7 @@ void *ListRemove(List *list) {
     return NULL;
   }
   Node *newAvailable = list->current;
+  Node *tmp = list->current;
   if (list->count == 1) {
     list->head = NULL;
     list->tail = NULL;
@@ -221,8 +275,9 @@ void *ListRemove(List *list) {
     list->count--;
     newAvailable->next = nodeAvailable;
     nodeAvailable = newAvailable;
-    return NULL;
+    return tmp->item;
   }
+
   if (list->current->prev) {
     list->current->prev->next = list->current->next;
   }
@@ -231,11 +286,9 @@ void *ListRemove(List *list) {
   }
   if (list->current == list->tail) {
     list->current = list->tail->prev;
-    list->tail->prev->next = NULL;
     list->tail = list->current;
   }
   else if (list->current == list->head) {
-    list->head->next->prev = NULL;
     list->head = list->head->next;
     list->current = list->head;
   }
@@ -247,7 +300,7 @@ void *ListRemove(List *list) {
     nodeAvailable = newAvailable;
   }
   list->count--;
-  return list->current;
+  return tmp->item;
 }
 
 void ListConcat (List *list1, List **list2) {
@@ -280,7 +333,7 @@ void *ListTrim(List *list) {
     newAvailable->next = nodeAvailable;
     nodeAvailable = newAvailable;
   }
-  return list->current;
+  return list->current->item;
 }
 
 
@@ -288,7 +341,7 @@ void *ListSearch(List *list, int (*comparator)(void *item, void *comparisonArg),
   Node *curr = list->current;
   while (curr) {
     if ( (*comparator)(curr, comparisonArg )) {
-      return list->current;
+      return list->current->item;
     }
     curr = curr->next;
     list->current = curr;
