@@ -318,6 +318,7 @@ void *ListTrim(List *list) {
     return NULL;
   }
   Node *newAvailable = list->current;
+  Node *tmp = list->current;
   if (list->count == 1) {
     list->head = NULL;
     list->tail = NULL;
@@ -333,18 +334,19 @@ void *ListTrim(List *list) {
     newAvailable->next = nodeAvailable;
     nodeAvailable = newAvailable;
   }
-  return list->current->item;
+  return tmp->item;
 }
 
 
 void *ListSearch(List *list, int (*comparator)(void *item, void *comparisonArg), void *comparisonArg) {
   Node *curr = list->current;
   while (curr) {
-    if ( (*comparator)(curr, comparisonArg )) {
+    if ( (*comparator)(curr->item, comparisonArg )) {
       return list->current->item;
     }
     curr = curr->next;
     list->current = curr;
   }
+  list->beyond = 1;
   return curr;
 }

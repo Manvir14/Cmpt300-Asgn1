@@ -17,6 +17,16 @@ void printList(List *list) {
   if (ListCurr(list)) {
     printf("Current item is %d\n\n", *(int *)ListCurr(list));
   }
+  else {
+    printf("Current item is NULL\n\n");
+  }
+}
+
+int comparator(void *item, void *comparisonArg) {
+  if (*(int *)item == *(int *)comparisonArg) {
+    return 1;
+  }
+  return 0;
 }
 
 
@@ -38,10 +48,10 @@ int main () {
 
   printf("Testing ListPrev going before beginning of list: Current should be NULL, Returned should be NULL\n");
   if(!ListPrev(list1)){
-    printf("Null was returned\n" );
+    printf("NULL was returned\n" );
   }
   if(!ListCurr(list1)) {
-    printf("Current is before beginning\n\n" );
+    printf("Current is before beginning and NULL\n\n" );
   }
 
   printf("Testing ListNext from before beginning: Current should be 1, Returned should be 1\n");
@@ -61,10 +71,10 @@ int main () {
 
   printf("Testing ListNext past the end of the list: Current should be NULL, Returned should be NULL\n");
   if(!ListNext(list1)){
-    printf("Null was returned\n" );
+    printf("NULL was returned\n" );
   }
   if(!ListCurr(list1)) {
-    printf("Current is beyond end\n\n" );
+    printf("Current is beyond end and NULL\n\n" );
   }
 
   printf("Testing ListPrev from past end of list: Current should be 6, Returned should be 6\n");
@@ -142,8 +152,26 @@ int main () {
   ListLast(list2);
   printf("Removal at end: Current is 3, after removal should be 6, Returned should be 3:\n");
   returned = ListRemove(list2);
-  assert(*(int *)returned == 3);
   printf("Returned item is %d\n", *returned);
+  printList(list2);
+
+  printf("Testing ListTrim: Current is 6, after removal should be 5, Returned should be 6:\n");
+  returned = ListTrim(list2);
+  printf("Returned item is %d\n", *returned);
+  printList(list2);
+
+  ListFirst(list2);
+  printf("Testing ListSearch: Searching for 3, 3 is in list and should be returned\n");
+  returned = ListSearch(list2, comparator, &values[2]);
+  printf("Returned item is %d\n", *returned);
+  printList(list2);
+
+  ListFirst(list2);
+  printf("Testing ListSearch: Searching for 10, 10 is not in list and NULL should be returned\n");
+  returned = ListSearch(list2, comparator, &values[9]);
+  if (!returned) {
+    printf("NULL was returned\n");
+  }
   printList(list2);
 
 }
