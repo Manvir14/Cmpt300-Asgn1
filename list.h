@@ -4,6 +4,7 @@ typedef struct list {
   Node *head;
   Node *tail;
   Node *current;
+  struct list *next;
   int count;
 } List;
 
@@ -36,7 +37,7 @@ void *ListRemove(List *list);
 
 void ListConcat(List *list1, List **list2);
 
-void ListFree(List *list, int itemFree);
+void ListFree(List *list, void (*itemFree)(void *itemToBeFreed));
 
 void *ListTrim(List *list);
 

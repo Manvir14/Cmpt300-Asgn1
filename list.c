@@ -1,21 +1,20 @@
 #include "list.h"
 #include <stddef.h>
+#include <stdio.h>
 
-#define NODEMAX 4
+#define NODEMAX 7
 #define HEADMAX 10
 
 Node nodes[NODEMAX];
 List heads[HEADMAX];
-Node *nodePool[NODEMAX];
-List *headPool[HEADMAX];
+Node *nodeAvailable;
+List *headAvailable;
 int loaded = 0;
-int nodeCurrent = 0;
-int headCurrent = 0;
-
 
 Node *ItemCreate(void *item) {
-  if (nodeCurrent < NODEMAX) {
-    Node *node = nodePool[nodeCurrent++];
+  if (nodeAvailable) {
+    Node *node = nodeAvailable;
+    nodeAvailable = nodeAvailable->next;
     node->item = item;
     node->next = NULL;
     node->prev = NULL;
@@ -26,17 +25,23 @@ Node *ItemCreate(void *item) {
 
 //QA
 List *ListCreate() {
-  int i = 0;
+  int i;
   if (!loaded) {
-    for (i=0; i<HEADMAX; i++) {
-      headPool[i] = &heads[i];
+    for (i=0; i<NODEMAX-1; i++) {
+      nodes[i].next = &nodes[i+1];
     }
-    for (i=0; i<NODEMAX; i++) {
-      nodePool[i] = &nodes[i];
+    for (i=0; i <HEADMAX-1; i++) {
+      heads[i].next = &heads[i+1];
     }
+    headAvailable = &heads[0];
+    heads[HEADMAX-1].next = NULL;
+    nodeAvailable = &nodes[0];
+    nodes[NODEMAX-1].next = NULL;
+    loaded = 1;
   }
-  if (headCurrent < HEADMAX){
-    List* list = headPool[headCurrent++];
+  if (headAvailable){
+    List* list = headAvailable;
+    headAvailable = headAvailable->next;
     list->count = 0;
     list->head = NULL;
     list->current = NULL;
@@ -205,15 +210,17 @@ int ListPrepend(List *list, void *item) {\
 
 // Works but needs to add node back to pool
 void *ListRemove(List *list) {
-  if (!list || list->count == 0) {
+  if (!list || list->count == 0 || !list->current) {
     return NULL;
   }
-  nodePool[--nodeCurrent] = list->current;
+  Node *newAvailable = list->current;
   if (list->count == 1) {
     list->head = NULL;
     list->tail = NULL;
     list->current = NULL;
     list->count--;
+    newAvailable->next = nodeAvailable;
+    nodeAvailable = newAvailable;
     return NULL;
   }
   if (list->current->prev) {
@@ -235,6 +242,10 @@ void *ListRemove(List *list) {
   else {
     list->current = list->current->next;
   }
+  if (newAvailable) {
+    newAvailable->next = nodeAvailable;
+    nodeAvailable = newAvailable;
+  }
   list->count--;
   return list->current;
 }
@@ -250,31 +261,37 @@ void ListConcat (List *list1, List **list2) {
 
 // Needs to add node back to pool
 void *ListTrim(List *list) {
-  if (list->count == 0) {
+  if (list->count == 0 || !list) {
     return NULL;
   }
+  Node *newAvailable = list->current;
   if (list->count == 1) {
     list->head = NULL;
     list->tail = NULL;
     list->current = NULL;
-    list->count--;
-    return list->current;
   }
   else {
     list->tail = list->tail->prev;
     list->current = list->tail;
     list->current->next = NULL;
-    list->count--;
-    return list->current;
   }
+  list->count--;
+  if (newAvailable) {
+    newAvailable->next = nodeAvailable;
+    nodeAvailable = newAvailable;
+  }
+  return list->current;
 }
+
 
 void *ListSearch(List *list, int (*comparator)(void *item, void *comparisonArg), void *comparisonArg) {
   Node *curr = list->current;
   while (curr) {
     if ( (*comparator)(curr, comparisonArg )) {
-      list->current = curr;
       return list->current;
     }
+    curr = curr->next;
+    list->current = curr;
   }
+  return curr;
 }
