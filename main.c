@@ -3,7 +3,7 @@
 #include "list.h"
 #include <assert.h>
 
-void printList(List *list) {
+void printList(LIST *list) {
   Node *head = list->head;
   Node *tail = list->tail;
   printf("Values for list are:\n");
@@ -38,7 +38,7 @@ int main () {
   int values[12] = {1,2,3,4,5,6,7,8,9,10,11,12};
   int i;
   int *returned;
-  List *list1 = ListCreate();
+  LIST *list1 = ListCreate();
 
   for (i=0; i<6; i++) {
     ListAdd(list1, &values[i]);
@@ -127,7 +127,7 @@ int main () {
 
 
   printf("Creating new list\n\n");
-  List *list2 = ListCreate();
+  LIST *list2 = ListCreate();
   for (i=0; i<6; i++) {
     ListAdd(list2, &values[i]);
   }
@@ -180,8 +180,7 @@ int main () {
   printList(list2);
 
   printList(list1);
-  ListConcat(list1,list2);
+  ListConcat(list1,&list2);
   printList(list1);
-  ListFree(list1, itemFree);
-  printList(list1);
+  printList(list2);
 }

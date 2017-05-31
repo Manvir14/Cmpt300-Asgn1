@@ -6,9 +6,9 @@
 #define HEADMAX 10
 
 Node nodes[NODEMAX];
-List heads[HEADMAX];
+LIST heads[HEADMAX];
 Node *nodeAvailable;
-List *headAvailable;
+LIST *headAvailable;
 int loaded = 0;
 
 Node *ItemCreate(void *item) {
@@ -24,7 +24,7 @@ Node *ItemCreate(void *item) {
 }
 
 //QA
-List *ListCreate() {
+LIST *ListCreate() {
   int i;
   if (!loaded) {
     for (i=0; i<NODEMAX-1; i++) {
@@ -41,7 +41,7 @@ List *ListCreate() {
     printf("Node Count is: %d\n", nodePoolCount() );
   }
   if (headAvailable){
-    List* list = headAvailable;
+    LIST* list = headAvailable;
     headAvailable = headAvailable->next;
     list->count = 0;
     list->head = NULL;
@@ -54,12 +54,12 @@ List *ListCreate() {
 }
 
 //QA
-int ListCount(List *list) {
+int ListCount(LIST *list) {
   return list->count;
 }
 
 //QA
-void *ListFirst(List *list) {
+void *ListFirst(LIST *list) {
   if (list->count > 0) {
     list->current = list->head;
     return list->head->item;
@@ -68,7 +68,7 @@ void *ListFirst(List *list) {
 }
 
 //QA
-void *ListLast(List *list) {
+void *ListLast(LIST *list) {
   if(list->count > 0) {
     list->current = list->tail;
     if (list->current) {
@@ -79,7 +79,7 @@ void *ListLast(List *list) {
 }
 
 //QA
-void *ListNext(List *list) {
+void *ListNext(LIST *list) {
   if (list->before) {
     list->current = list->head;
     list->before = 0;
@@ -95,7 +95,7 @@ void *ListNext(List *list) {
 }
 
 //QA
-void *ListPrev(List *list){
+void *ListPrev(LIST *list){
   if (list->beyond) {
     list->current = list->tail;
     list->beyond = 0;
@@ -110,7 +110,7 @@ void *ListPrev(List *list){
 }
 
 //QA
-void *ListCurr(List *list){
+void *ListCurr(LIST *list){
   if (list->current != NULL) {
     return list->current->item;
   }
@@ -118,7 +118,7 @@ void *ListCurr(List *list){
 }
 
 //Done
-int ListAdd(List *list, void *item) {
+int ListAdd(LIST *list, void *item) {
   Node *node = ItemCreate(item);
   if (!node || !list) {
     return -1;
@@ -166,7 +166,7 @@ int ListAdd(List *list, void *item) {
 }
 
 //Done
-int ListInsert(List *list, void *item) {
+int ListInsert(LIST *list, void *item) {
   Node *node = ItemCreate(item);
   if (!node || !list) {
     return -1;
@@ -215,7 +215,7 @@ int ListInsert(List *list, void *item) {
 }
 
 //Done
-int ListAppend(List *list, void *item) {
+int ListAppend(LIST *list, void *item) {
   Node* node = ItemCreate(item);
   if (!node || !list) {
     return -1;
@@ -239,7 +239,7 @@ int ListAppend(List *list, void *item) {
 }
 
 //Done
-int ListPrepend(List *list, void *item) {\
+int ListPrepend(LIST *list, void *item) {\
   Node* node = ItemCreate(item);
   if (!node || !list) {
     return -1;
@@ -263,7 +263,7 @@ int ListPrepend(List *list, void *item) {\
 }
 
 // Works but needs to add node back to pool
-void *ListRemove(List *list) {
+void *ListRemove(LIST *list) {
   if (!list || list->count == 0 || !list->current) {
     return NULL;
   }
@@ -304,19 +304,19 @@ void *ListRemove(List *list) {
   return tmp->item;
 }
 
-void ListConcat (List *list1, List *list2) {
-  list1->tail->next = list2->head;
-  list2->head->prev = list1->tail;
-  list1->tail = list2->tail;
-  list1->count += list2->count;
-  List *newHeadAvailable = list2;
+void ListConcat (LIST *list1, LIST **list2) {
+  list1->tail->next = (*list2)->head;
+  (*list2)->head->prev = list1->tail;
+  list1->tail = (*list2)->tail;
+  list1->count += (*list2)->count;
+  LIST *newHeadAvailable = (*list2);
   newHeadAvailable->next = headAvailable;
   headAvailable = newHeadAvailable;
-  list2 = NULL;
+  *list2 = NULL;
 }
 
 // Needs to add node back to pool
-void *ListTrim(List *list) {
+void *ListTrim(LIST *list) {
   if (list->count == 0 || !list) {
     return NULL;
   }
@@ -340,20 +340,23 @@ void *ListTrim(List *list) {
   return tmp->item;
 }
 
-void ListFree(List *list, void (*itemFree)(void *itemToBeFreed)) {
+void ListFree(LIST *list, void (*itemFree)(void *itemToBeFreed)) {
   Node *curr = list->tail;
   while (curr) {
     (*itemFree)(curr->item);
     ListTrim(list);
     curr = curr->prev;
   }
-  List *newHeadAvailable = list;
+  list->head = NULL;
+  list->tail = NULL;
+  list->current = NULL;
+  LIST *newHeadAvailable = list;
   newHeadAvailable->next = headAvailable;
   headAvailable = newHeadAvailable;
 }
 
 
-void *ListSearch(List *list, int (*comparator)(void *item, void *comparisonArg), void *comparisonArg) {
+void *ListSearch(LIST *list, int (*comparator)(void *item, void *comparisonArg), void *comparisonArg) {
   Node *curr = list->current;
   while (curr) {
     if ( (*comparator)(curr->item, comparisonArg )) {

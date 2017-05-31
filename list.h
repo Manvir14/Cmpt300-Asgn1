@@ -8,41 +8,41 @@ typedef struct list {
   int count;
   int beyond;
   int before;
-} List;
+} LIST;
 
 int nodePoolCount ();
 Node *ItemCreate(void *item);
 
-List *ListCreate();
+LIST *ListCreate();
 
-int ListCount(List *list);
+int ListCount(LIST *list);
 
-void *ListFirst(List *list);
+void *ListFirst(LIST *list);
 
-void *ListLast(List *list);
+void *ListLast(LIST *list);
 
-void *ListNext(List *list);
+void *ListNext(LIST *list);
 
-void *ListPrev(List *list);
+void *ListPrev(LIST *list);
 
-void *ListCurr(List *list);
+void *ListCurr(LIST *list);
 
-int ListAdd(List *list, void *item);
+int ListAdd(LIST *list, void *item);
 
-int ListInsert(List *list, void *item);
+int ListInsert(LIST *list, void *item);
 
-int ListAppend(List *list,void *item);
+int ListAppend(LIST *list,void *item);
 
-int ListPrepend(List *list, void *item);
+int ListPrepend(LIST *list, void *item);
 
-void *ListRemove(List *list);
+void *ListRemove(LIST *list);
 
-void ListConcat(List *list1, List *list2);
+void ListConcat(LIST *list1, LIST **list2);
 
-void ListFree(List *list, void (*itemFree)(void *itemToBeFreed));
+void ListFree(LIST *list, void (*itemFree)(void *itemToBeFreed));
 
-void *ListTrim(List *list);
+void *ListTrim(LIST *list);
 
-void ListPrint(List *list);
+void ListPrint(LIST *list);
 
-void *ListSearch(List *list, int (*comparator)(void *item, void *comparisonArg), void *comparisonArg);
+void *ListSearch(LIST *list, int (*comparator)(void *item, void *comparisonArg), void *comparisonArg);
