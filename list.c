@@ -38,6 +38,7 @@ List *ListCreate() {
     nodeAvailable = &nodes[0];
     nodes[NODEMAX-1].next = NULL;
     loaded = 1;
+    printf("Node Count is: %d\n", nodePoolCount() );
   }
   if (headAvailable){
     List* list = headAvailable;
@@ -303,13 +304,15 @@ void *ListRemove(List *list) {
   return tmp->item;
 }
 
-void ListConcat (List *list1, List **list2) {
-  if (list1 && list2) {
-    list1->tail->next = (*list2)->head;
-    (*list2)->head->prev = list1->tail;
-    list1->count += (*list2)->count;
-    *list2 = NULL;
-  }
+void ListConcat (List *list1, List *list2) {
+  list1->tail->next = list2->head;
+  list2->head->prev = list1->tail;
+  list1->tail = list2->tail;
+  list1->count += list2->count;
+  List *newHeadAvailable = list2;
+  newHeadAvailable->next = headAvailable;
+  headAvailable = newHeadAvailable;
+  list2 = NULL;
 }
 
 // Needs to add node back to pool
@@ -317,8 +320,8 @@ void *ListTrim(List *list) {
   if (list->count == 0 || !list) {
     return NULL;
   }
-  Node *newAvailable = list->current;
-  Node *tmp = list->current;
+  Node *newAvailable = list->tail;
+  Node *tmp = list->tail;
   if (list->count == 1) {
     list->head = NULL;
     list->tail = NULL;
@@ -337,6 +340,18 @@ void *ListTrim(List *list) {
   return tmp->item;
 }
 
+void ListFree(List *list, void (*itemFree)(void *itemToBeFreed)) {
+  Node *curr = list->tail;
+  while (curr) {
+    (*itemFree)(curr->item);
+    ListTrim(list);
+    curr = curr->prev;
+  }
+  List *newHeadAvailable = list;
+  newHeadAvailable->next = headAvailable;
+  headAvailable = newHeadAvailable;
+}
+
 
 void *ListSearch(List *list, int (*comparator)(void *item, void *comparisonArg), void *comparisonArg) {
   Node *curr = list->current;
@@ -347,6 +362,18 @@ void *ListSearch(List *list, int (*comparator)(void *item, void *comparisonArg),
     curr = curr->next;
     list->current = curr;
   }
-  list->beyond = 1;
+  if (list->count > 0) {
+    list->beyond = 1;
+  }
   return curr;
+}
+
+int nodePoolCount () {
+  int j = 0;
+  Node *node = nodeAvailable;
+  while (node) {
+    j++;
+    node = node->next;
+  }
+  return j;
 }

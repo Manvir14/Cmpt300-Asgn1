@@ -29,6 +29,10 @@ int comparator(void *item, void *comparisonArg) {
   return 0;
 }
 
+void itemFree (void *itemToBeFreed) {
+  *(int *)itemToBeFreed = 0;
+}
+
 
 int main () {
   int values[12] = {1,2,3,4,5,6,7,8,9,10,11,12};
@@ -155,6 +159,7 @@ int main () {
   printf("Returned item is %d\n", *returned);
   printList(list2);
 
+  ListFirst(list1);
   printf("Testing ListTrim: Current is 6, after removal should be 5, Returned should be 6:\n");
   returned = ListTrim(list2);
   printf("Returned item is %d\n", *returned);
@@ -174,4 +179,9 @@ int main () {
   }
   printList(list2);
 
+  printList(list1);
+  ListConcat(list1,list2);
+  printList(list1);
+  ListFree(list1, itemFree);
+  printList(list1);
 }

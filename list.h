@@ -10,7 +10,7 @@ typedef struct list {
   int before;
 } List;
 
-
+int nodePoolCount ();
 Node *ItemCreate(void *item);
 
 List *ListCreate();
@@ -37,7 +37,7 @@ int ListPrepend(List *list, void *item);
 
 void *ListRemove(List *list);
 
-void ListConcat(List *list1, List **list2);
+void ListConcat(List *list1, List *list2);
 
 void ListFree(List *list, void (*itemFree)(void *itemToBeFreed));
 
