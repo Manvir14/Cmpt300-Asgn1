@@ -1,5 +1,5 @@
 cc = gcc
-prog = test
+prog = testDriver
 
 
 run: list.o main.o

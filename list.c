@@ -1,6 +1,5 @@
 #include "list.h"
 #include <stddef.h>
-#include <stdio.h>
 
 #define NODEMAX 100
 #define HEADMAX 10
@@ -23,7 +22,6 @@ Node *ItemCreate(void *item) {
   return NULL;
 }
 
-//QA
 LIST *ListCreate() {
   int i;
   if (!loaded) {
@@ -38,27 +36,26 @@ LIST *ListCreate() {
     nodeAvailable = &nodes[0];
     nodes[NODEMAX-1].next = NULL;
     loaded = 1;
-    printf("Node Count is: %d\n", nodePoolCount() );
   }
   if (headAvailable){
     LIST* list = headAvailable;
     headAvailable = headAvailable->next;
     list->count = 0;
     list->head = NULL;
+    list->tail = NULL;
     list->current = NULL;
     list->beyond = 0;
     list->before = 0;
+    list->next = NULL;
     return list;
   }
   return NULL;
 }
 
-//QA
 int ListCount(LIST *list) {
   return list->count;
 }
 
-//QA
 void *ListFirst(LIST *list) {
   if (list->count > 0) {
     list->current = list->head;
@@ -67,7 +64,6 @@ void *ListFirst(LIST *list) {
   return NULL;
 }
 
-//QA
 void *ListLast(LIST *list) {
   if(list->count > 0) {
     list->current = list->tail;
@@ -78,7 +74,6 @@ void *ListLast(LIST *list) {
   return NULL;
 }
 
-//QA
 void *ListNext(LIST *list) {
   if (list->before) {
     list->current = list->head;
@@ -94,7 +89,6 @@ void *ListNext(LIST *list) {
 
 }
 
-//QA
 void *ListPrev(LIST *list){
   if (list->beyond) {
     list->current = list->tail;
@@ -109,7 +103,6 @@ void *ListPrev(LIST *list){
   return list->current ? list->current->item : NULL;
 }
 
-//QA
 void *ListCurr(LIST *list){
   if (list->current != NULL) {
     return list->current->item;
@@ -117,7 +110,6 @@ void *ListCurr(LIST *list){
   return NULL;
 }
 
-//Done
 int ListAdd(LIST *list, void *item) {
   Node *node = ItemCreate(item);
   if (!node || !list) {
@@ -165,7 +157,6 @@ int ListAdd(LIST *list, void *item) {
 
 }
 
-//Done
 int ListInsert(LIST *list, void *item) {
   Node *node = ItemCreate(item);
   if (!node || !list) {
@@ -214,7 +205,6 @@ int ListInsert(LIST *list, void *item) {
 
 }
 
-//Done
 int ListAppend(LIST *list, void *item) {
   Node* node = ItemCreate(item);
   if (!node || !list) {
@@ -238,7 +228,6 @@ int ListAppend(LIST *list, void *item) {
   return -1;
 }
 
-//Done
 int ListPrepend(LIST *list, void *item) {\
   Node* node = ItemCreate(item);
   if (!node || !list) {
@@ -262,7 +251,6 @@ int ListPrepend(LIST *list, void *item) {\
   return -1;
 }
 
-// Works but needs to add node back to pool
 void *ListRemove(LIST *list) {
   if (!list || list->count == 0 || !list->current) {
     return NULL;
@@ -304,18 +292,26 @@ void *ListRemove(LIST *list) {
   return tmp->item;
 }
 
-void ListConcat (LIST *list1, LIST **list2) {
-  list1->tail->next = (*list2)->head;
-  (*list2)->head->prev = list1->tail;
-  list1->tail = (*list2)->tail;
-  list1->count += (*list2)->count;
-  LIST *newHeadAvailable = (*list2);
-  newHeadAvailable->next = headAvailable;
-  headAvailable = newHeadAvailable;
-  *list2 = NULL;
+void ListConcat (LIST *list1, LIST *list2) {
+  if (list1->tail) {
+    list1->tail->next = list2->head;
+  }
+  if (list2->head) {
+    list2->head->prev = list1->tail;
+  }
+  list1->tail = list2->tail;
+  list1->count += list2->count;
+  list2->count = 0;
+  list2->head = NULL;
+  list2->tail = NULL;
+  list2->current = NULL;
+  LIST *newHeadAvailable = list2;
+  if (newHeadAvailable) {
+    newHeadAvailable->next = headAvailable;
+    headAvailable = newHeadAvailable;
+  }
 }
 
-// Needs to add node back to pool
 void *ListTrim(LIST *list) {
   if (list->count == 0 || !list) {
     return NULL;
@@ -369,14 +365,4 @@ void *ListSearch(LIST *list, int (*comparator)(void *item, void *comparisonArg),
     list->beyond = 1;
   }
   return curr;
-}
-
-int nodePoolCount () {
-  int j = 0;
-  Node *node = nodeAvailable;
-  while (node) {
-    j++;
-    node = node->next;
-  }
-  return j;
 }

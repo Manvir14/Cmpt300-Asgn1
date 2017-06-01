@@ -10,7 +10,6 @@ typedef struct list {
   int before;
 } LIST;
 
-int nodePoolCount ();
 Node *ItemCreate(void *item);
 
 LIST *ListCreate();
@@ -37,12 +36,10 @@ int ListPrepend(LIST *list, void *item);
 
 void *ListRemove(LIST *list);
 
-void ListConcat(LIST *list1, LIST **list2);
+void ListConcat(LIST *list1, LIST *list2);
 
 void ListFree(LIST *list, void (*itemFree)(void *itemToBeFreed));
 
 void *ListTrim(LIST *list);
-
-void ListPrint(LIST *list);
 
 void *ListSearch(LIST *list, int (*comparator)(void *item, void *comparisonArg), void *comparisonArg);

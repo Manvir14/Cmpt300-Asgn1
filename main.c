@@ -30,7 +30,7 @@ int comparator(void *item, void *comparisonArg) {
 }
 
 void itemFree (void *itemToBeFreed) {
-  *(int *)itemToBeFreed = 0;
+  itemToBeFreed = NULL;
 }
 
 
@@ -39,9 +39,16 @@ int main () {
   int i;
   int *returned;
   LIST *list1 = ListCreate();
-
+  LIST *list3 = ListCreate();
+  LIST *list4 = ListCreate();
   for (i=0; i<6; i++) {
     ListAdd(list1, &values[i]);
+    if (i<3) {
+      ListAdd(list3, &values[i]);
+    }
+    if (i>2) {
+      ListAdd(list4, &values[i]);
+    }
   }
   printList(list1);
 
@@ -53,6 +60,9 @@ int main () {
   printf("Testing ListPrev going before beginning of list: Current should be NULL, Returned should be NULL\n");
   if(!ListPrev(list1)){
     printf("NULL was returned\n" );
+  }
+  else {
+    printf("NULL was not returned\n");
   }
   if(!ListCurr(list1)) {
     printf("Current is before beginning and NULL\n\n" );
@@ -76,6 +86,9 @@ int main () {
   printf("Testing ListNext past the end of the list: Current should be NULL, Returned should be NULL\n");
   if(!ListNext(list1)){
     printf("NULL was returned\n" );
+  }
+  else {
+    printf("NULL was not returned\n");
   }
   if(!ListCurr(list1)) {
     printf("Current is beyond end and NULL\n\n" );
@@ -159,28 +172,78 @@ int main () {
   printf("Returned item is %d\n", *returned);
   printList(list2);
 
-  ListFirst(list1);
-  printf("Testing ListTrim: Current is 6, after removal should be 5, Returned should be 6:\n");
-  returned = ListTrim(list2);
-  printf("Returned item is %d\n", *returned);
-  printList(list2);
+  printf("Testing ListConcat: Concatenating list: {1,2,3} to end of list2:{4,5,6}\n");
+  printf("List 1 before concatenating:\n");
+  printList(list4);
+  printf("List 2 before concatenating:\n");
+  printList(list3);
+  ListConcat(list4,list3);
+  printf("After concatenating list should be {4,5,6,1,2,3}, Current should be 6:\n");
+  printList(list4);
 
-  ListFirst(list2);
-  printf("Testing ListSearch: Searching for 3, 3 is in list and should be returned\n");
-  returned = ListSearch(list2, comparator, &values[2]);
-  printf("Returned item is %d\n", *returned);
-  printList(list2);
 
-  ListFirst(list2);
+  ListFirst(list4);
+  printf("Testing ListTrim: Current is 6, after removal should be 2, Returned should be 3:\n");
+  returned = ListTrim(list4);
+  printf("Returned item is %d\n", *returned);
+  printList(list4);
+
+  ListFirst(list4);
+  printf("Testing ListSearch: Searching for 2, 2 is in list and should be returned\n");
+  returned = ListSearch(list4, comparator, &values[1]);
+  printf("Returned item is %d\n", *returned);
+  printList(list4);
+
+  ListFirst(list4);
   printf("Testing ListSearch: Searching for 10, 10 is not in list and NULL should be returned\n");
-  returned = ListSearch(list2, comparator, &values[9]);
+  returned = ListSearch(list4, comparator, &values[9]);
   if (!returned) {
     printf("NULL was returned\n");
   }
+  else {
+    printf("NULL was not returned\n");
+  }
   printList(list2);
 
-  printList(list1);
-  ListConcat(list1,&list2);
-  printList(list1);
+  printf("Testing ListFree: Head, tail and current of list should be NULL with all nodes back in pool\n");
+  ListFree(list2, itemFree);
   printList(list2);
+
+  LIST *list5 = ListCreate();
+  LIST *list6 = ListCreate();
+  LIST *list7 = ListCreate();
+  LIST *list8 = ListCreate();
+  LIST *list9 = ListCreate();
+  LIST *list10 = ListCreate();
+  LIST *list11 = ListCreate();
+  LIST *list12 = ListCreate();
+  LIST *list13 = ListCreate();
+  printf("Testing ListCreate: NULL should be returned as limit is reached\n");
+  if(!list13) {
+    printf("NUll was returned\n\n");
+  }
+  else {
+    printf("NULL was not returned\n\n");
+  }
+
+  printf("Testing reuse of list heads: List should be created after one is freed, 5 will be added after creation:\n");
+  ListFree(list12, itemFree);
+  LIST* list14 = ListCreate();
+  ListAppend(list14, &values[4]);
+  printList(list14);
+
+  printf("Testing reuse of list node: All nodes should be added to list\n");
+  while (!ListAppend(list14, &values[2]));
+  printf("All nodes currently in use: Adding should return -1\n");
+  int nodesAllUsed = ListAdd(list14, &values[6]);
+  if (nodesAllUsed) {
+    printf("Adding Failed, returned %d\n\n", nodesAllUsed);
+  }
+  else {
+    printf("Should not have been added, returned %d\n\n", nodesAllUsed);
+  }
+  printf("Nodes all in use then removing a node from list, reusing it in different list, 10 should be added to list:\n");
+  ListRemove(list14);
+  ListAdd(list10, &values[9]);
+  printList(list10);
 }
