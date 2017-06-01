@@ -82,7 +82,7 @@ void *ListNext(LIST *list) {
   else if(list->current) {
     list->current = list->current->next;
   }
-  if (list->current == NULL) {
+  if (list->current == NULL & list->count > 0) {
     list->beyond = 1;
   }
   return list->current ? list->current->item : NULL;
@@ -97,7 +97,7 @@ void *ListPrev(LIST *list){
   else if(list->current) {
     list->current = list->current->prev;
   }
-  if (list->current == NULL) {
+  if (list->current == NULL && list->count > 0) {
     list->before = 1;
   }
   return list->current ? list->current->item : NULL;
