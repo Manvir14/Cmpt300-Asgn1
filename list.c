@@ -215,6 +215,7 @@ int ListAppend(LIST *list, void *item) {
     list->tail = node;
     list->current = node;
     list->count++;
+    list->beyond = list->before = 0;
     return 0;
   }
   else {
@@ -223,6 +224,7 @@ int ListAppend(LIST *list, void *item) {
     list->tail = node;
     list->current = node;
     list->count++;
+    list->beyond = list->before = 0;
     return 0;
   }
   return -1;
@@ -238,6 +240,7 @@ int ListPrepend(LIST *list, void *item) {\
     list->tail = node;
     list->current = node;
     list->count++;
+    list->beyond = list->before = 0;
     return 0;
   }
   else {
@@ -246,6 +249,7 @@ int ListPrepend(LIST *list, void *item) {\
     list->head = node;
     list->current = node;
     list->count++;
+    list->beyond = list->before = 0;
     return 0;
   }
   return -1;
@@ -333,6 +337,7 @@ void *ListTrim(LIST *list) {
     newAvailable->next = nodeAvailable;
     nodeAvailable = newAvailable;
   }
+  list->beyond = 0;
   return tmp->item;
 }
 

@@ -189,13 +189,13 @@ int main () {
   printList(list4);
 
   ListFirst(list4);
-  printf("Testing ListSearch: Searching for 2, 2 is in list and should be returned\n");
+  printf("Testing ListSearch: Searching for 2, 2 is in list and should be returned and current\n");
   returned = ListSearch(list4, comparator, &values[1]);
   printf("Returned item is %d\n", *returned);
   printList(list4);
 
   ListFirst(list4);
-  printf("Testing ListSearch: Searching for 10, 10 is not in list and NULL should be returned\n");
+  printf("Testing ListSearch: Searching for 10, 10 is not in list and NULL should be returned and current\n");
   returned = ListSearch(list4, comparator, &values[9]);
   if (!returned) {
     printf("NULL was returned\n");
@@ -203,7 +203,7 @@ int main () {
   else {
     printf("NULL was not returned\n");
   }
-  printList(list2);
+  printList(list4);
 
   printf("Testing ListFree: Head, tail and current of list should be NULL with all nodes back in pool\n");
   ListFree(list2, itemFree);
@@ -246,4 +246,5 @@ int main () {
   ListRemove(list14);
   ListAdd(list10, &values[9]);
   printList(list10);
+
 }
